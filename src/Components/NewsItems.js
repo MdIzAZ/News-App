@@ -59,7 +59,7 @@ export default class NewsItems extends Component {
                 </div>
                 <div className="container d-flex justify-content-between">
                     <button type="button" className="btn btn-secondary" disabled={this.state.page === 1} onClick={this.handlePre}>&laquo; Previous</button>
-                    <button type="button" className="btn btn-secondary" onClick={this.handleNxt}>Next &raquo;</button>
+                    <button type="button" className="btn btn-secondary" disabled={this.state.page > Math.ceil(this.state.total / 12)} onClick={this.handleNxt}>Next &raquo;</button>
                 </div>
             </div>
         )
