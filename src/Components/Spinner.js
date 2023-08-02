@@ -3,7 +3,7 @@ export default class Spinner extends Component {
   render() {
     return (
       <div>
-        <img src={load} alt="" />
+        <h1>hi</h1>
       </div>
     )
   }
