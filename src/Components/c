@@ -1,0 +1,9 @@
+import NewsItems from "./NewsItems";
+
+<Route path='business' element={<NewsItems country='in' category='business'/>}>business</Route>
+<Route path='health' element={<NewsItems country='in' category='health'/>}>health</Route>
+<Route path='entertainment' element={<NewsItems country='in' category='entertainment'/>}>entertainment</Route>
+<Route path='technologies' element={<NewsItems country='in' category='technologies'/>}>technologies</Route>
+<Route path='/' element={<NewsItems country='in' category='general'/>}>general</Route>
+<Route path='science' element={<NewsItems country='in' category='science'/>}>science</Route>
+<Route path='sports' element={<NewsItems country='in' category='sports'/>}>sports</Route>
