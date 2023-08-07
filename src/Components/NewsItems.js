@@ -1,82 +1,86 @@
-import React, { Component } from 'react'
+import React, { useState, useEffect } from 'react'
 import Cards from './Cards'
-import Spinner from './Spinner';
 import PropTypes from 'prop-types'
+import InfiniteScroll from 'react-infinite-scroll-component'
+import Spinner from './Spinner'
 
 
-export default class NewsItems extends Component {
-    static defaultProps={
-        country: 'in',
-        category: 'general'
-    }
-    static propTypes={
-        country: PropTypes.string,
-        category: PropTypes.string,
-    }
-    constructor() {
-        super();
-        this.state = {
-            arr: [],
-            loading: false,
-            page: 2,
-        }
-    }
+const NewsItems = (props) => {
+    const [arr, setArr] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [page, setPage] = useState(1);
+    const [totalRes, setTotalRes] = useState(0);
 
-    async componentDidMount() {
-        let url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=4d6e4c8b65ff41af8835fb88010e5f8f&page=${this.state.page-1}&pageSize=12`;
-        this.setState({ loading: true });
+    
+
+    const upadateNews = async () => {
+        props.setProgress(30);
+
+        let url = `https://newsapi.org/v2/top-headlines?country=${props.country}&category=${props.category}&apiKey=${props.apiKey}&page=${page}&pageSize=12`
+
+        setLoading(true);
         let data = await fetch(url);
         let finalData = await data.json();
-        this.setState({ 
-            loading: false,
-            arr: finalData.articles,
-            total: finalData.totalResults
-        });
+        setLoading(false);
+        setArr(finalData.articles);
+        setTotalRes(finalData.totalResults)
+        setLoading(false);
+
+        props.setProgress(100);
     }
 
-    handlePre = async () => {
-        let url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=4d6e4c8b65ff41af8835fb88010e5f8f&page=${this.state.page-1}&pageSize=12`;
-        this.setState({ loading: true });
+    useEffect(() => {
+        upadateNews();
+    },[])
+
+    const fetchMoreData = async () => {
+        let url = `https://newsapi.org/v2/top-headlines?country=${props.country}&category=${props.category}&apiKey=${props.apiKey}&page=${page+1}&pageSize=12`
+
+        setPage(page+1);
+        setLoading(true);
         let data = await fetch(url);
         let finalData = await data.json();
-        this.setState({
-            loading: false,
-            arr: finalData.articles,
-            page: this.state.page - 1
-        });
-    }
+        setLoading(false);
+        setArr(arr.concat(finalData.articles));
+        setTotalRes(finalData.totalResults)
+    };
 
-    handleNxt = async () => {
-        let url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=4d6e4c8b65ff41af8835fb88010e5f8f&page=${this.state.page-1}&pageSize=12`;
-            this.setState({ loading: true });
-            let data = await fetch(url);
-            let finalData = await data.json();
-            this.setState({
-                loading: false,
-                arr: finalData.articles,
-                page: this.state.page + 1
-            });
-    }
+    
 
 
-    render() {
-        return (
-            <div className='container my-3'>
-                {this.state.loading && <Spinner/>}
-                <div className="row">
-                    {
-                        !this.state.loading && this.state.arr.map((ele, idx) => {
-                            return (
-                                <div key={idx} className="col-md-3"><Cards title={ele.title ? ele.title.slice(0, 45) : ""} description={ele.description ? ele.description.slice(0, 88) : ""} image={ele.urlToImage?ele.urlToImage: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSYAcCQTp6jMR-GP6N8-lpccALnMtVyeX6LqA&usqp=CAU"} readmore={ele.url} author={ele.author} date={ele.publishedAt} source={ele.source.name}/></div>
-                            )
-                        })
-                    }
+
+    return (
+        <>
+            <InfiniteScroll
+                dataLength={arr.length}
+                next={fetchMoreData}
+                hasMore={arr.length !== totalRes}
+                loader={<Spinner />}
+            >
+                <div className='container my-3'>
+
+                    <div className="row">
+                        {
+                            arr.map((ele, idx) => {
+                                return (
+                                    <div key={idx} className="col-md-3"><Cards title={ele.title ? ele.title.slice(0, 45) : ""} description={ele.description ? ele.description.slice(0, 88) : ""} image={ele.urlToImage ? ele.urlToImage : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSYAcCQTp6jMR-GP6N8-lpccALnMtVyeX6LqA&usqp=CAU"} readmore={ele.url} author={ele.author} date={ele.publishedAt} source={ele.source.name} /></div>
+                                )
+                            })
+                        }
+                    </div>
+
                 </div>
-                <div className="container d-flex justify-content-between">
-                    <button type="button" className="btn btn-secondary" disabled={this.state.page === 1} onClick={this.handlePre}>&laquo; Previous</button>
-                    <button type="button" className="btn btn-secondary" disabled={this.state.page > Math.ceil(this.state.total / 12)} onClick={this.handleNxt}>Next &raquo;</button>
-                </div>
-            </div>
-        )
-    }
+            </InfiniteScroll>
+        </>
+    )
+
 }
+NewsItems.defaultProps = {
+    country: 'in',
+    category: 'general'
+}
+NewsItems.propTypes = {
+    country: PropTypes.string,
+    category: PropTypes.string,
+}
+export default NewsItems;

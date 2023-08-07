@@ -3,7 +3,7 @@ export default class Spinner extends Component {
   render() {
     return (
       <div>
-        <h1>hi</h1>
+        <h4 className='text-light'>Loading...</h4>
       </div>
     )
   }
